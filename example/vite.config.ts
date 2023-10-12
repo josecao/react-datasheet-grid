@@ -8,5 +8,10 @@ export default defineConfig({
     include: [
       "react-datasheet-grid"
     ]
+  },
+  server: {
+    port: 3000,
+    open: true,
+    host: true,
   }
 })
