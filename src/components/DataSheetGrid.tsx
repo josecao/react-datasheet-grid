@@ -28,6 +28,7 @@ import deepEqual from 'fast-deep-equal'
 import { ContextMenu } from './ContextMenu'
 import {
   encodeHtml,
+  isPrintableUnicode,
   parseTextHtmlData,
   parseTextPlainData,
 } from '../utils/copyPasting'
@@ -119,7 +120,7 @@ export const DataSheetGrid = React.memo(
         refreshRate: 100,
       })
 
-      setHeightDiff(height ? displayHeight - Math.ceil(height) : 0)
+      setHeightDiff(height ? displayHeight - height : 0)
 
       const edges = useEdges(outerRef, width, height)
 
@@ -1456,7 +1457,7 @@ export const DataSheetGrid = React.memo(
             )
             event.preventDefault()
           } else if (
-            (event.key.match(/^[ -~]$/) || event.code.match(/Key[A-Z]$/)) &&
+            (isPrintableUnicode(event.key) || event.code.match(/Key[A-Z]$/)) &&
             !event.ctrlKey &&
             !event.metaKey &&
             !event.altKey
@@ -1561,12 +1562,12 @@ export const DataSheetGrid = React.memo(
                   const items = await navigator.clipboard.read()
                   items.forEach(async (item) => {
                     let pasteData = [['']]
-                    if (item.types.includes('text/plain')) {
-                      const plainTextData = await item.getType('text/plain')
-                      pasteData = parseTextPlainData(await plainTextData.text())
-                    } else if (item.types.includes('text/html')) {
+                    if (item.types.includes('text/html')) {
                       const htmlTextData = await item.getType('text/html')
                       pasteData = parseTextHtmlData(await htmlTextData.text())
+                    } else if (item.types.includes('text/plain')) {
+                      const plainTextData = await item.getType('text/plain')
+                      pasteData = parseTextPlainData(await plainTextData.text())
                     } else if (item.types.includes('text')) {
                       const htmlTextData = await item.getType('text')
                       pasteData = parseTextHtmlData(await htmlTextData.text())
